@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Product Recommender (Click Based)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #444;
+    }
+
+    .product-grid, .recommendation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .product-card, .recommend-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      background-color: #e6f2ff;
+    }
+
+    .emoji {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #222;
+    }
+
+    .stats {
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛒 Smart Product Recommender</h1>
+
+  <h2>Available Products</h2>
+  <div class="product-grid">
+    <div class="product-card" onclick="trackProduct('p1')">
+      <div class="emoji">🥫</div>
+      <div class="title">Canned Beans</div>
+    </div>
+    <div class="product-card" onclick="trackProduct('p2')">
+      <div class="emoji">🧼</div>
+      <div class="title">Soap Bar</div>
+    </div>
+    <div class="product-card" onclick="trackProduct('p3')">
+      <div class="emoji">🥖</div>
+      <div class="title">French Bread</div>
+    </div>
+    <div class="product-card" onclick="trackProduct('p4')">
+      <div class="emoji">🧃</div>
+      <div class="title">Fruit Juice</div>
+    </div>
+    <div class="product-card" onclick="trackProduct('p5')">
+      <div class="emoji">🍪</div>
+      <div class="title">Cookies</div>
+    </div>
+  </div>
+
+  <h2>🎯 Recommended for You</h2>
+  <div class="recommendation-grid" id="recommended">
+    <!-- Recommendations will appear here -->
+  </div>
+
+  <script>
+    const productNames = {
+      p1: "Canned Beans",
+      p2: "Soap Bar",
+      p3: "French Bread",
+      p4: "Fruit Juice",
+      p5: "Cookies"
+    };
+
+    const productEmojis = {
+      p1: "🥫",
+      p2: "🧼",
+      p3: "🥖",
+      p4: "🧃",
+      p5: "🍪"
+    };
+
+    function trackProduct(productId) {
+      let views = JSON.parse(localStorage.getItem('productViews') || '{}');
+
+      if (!views[productId]) {
+        views[productId] = { count: 0 };
+      }
+
+      views[productId].count += 1;
+      localStorage.setItem('productViews', JSON.stringify(views));
+      updateRecommendations();
+    }
+
+    function updateRecommendations() {
+      let views = JSON.parse(localStorage.getItem('productViews') || '{}');
+      const sorted = Object.entries(views)
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 3);
+
+      const container = document.getElementById('recommended');
+      container.innerHTML = '';
+
+      for (const [id, data] of sorted) {
+        const card = document.createElement('div');
+        card.className = 'recommend-card';
+        card.innerHTML = `
+          <div class="emoji">${productEmojis[id]}</div>
+          <div class="title">${productNames[id]}</div>
+          <div class="stats">
+            Views: ${data.count}
+          </div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    updateRecommendations();
+  </script>
+</body>
+</html>
